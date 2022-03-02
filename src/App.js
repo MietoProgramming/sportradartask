@@ -22,8 +22,17 @@ function App() {
     //     console.log(data);
     //   })
     //   .catch(error => console.log(error))
-    console.log(schedulesRes.schedules);
+    console.log(schedulesRes.schedules[0]);
     setSchedulesData(schedulesRes);
+  };
+
+  const formatDate = (date) => {
+    const TIndex = date.indexOf("T");
+    return date.slice(0, TIndex);
+  };
+
+  const setTeamColor = (team, winner) => {
+    return winner === undefined ? "orange" : winner === team ? "green" : "red";
   };
 
   return (
@@ -34,19 +43,46 @@ function App() {
         <Table>
           <thead>
             <tr>
-              <Td>Team Name</Td>
+              <Td colSpan="2">Team Names</Td>
               <Td>Result</Td>
+              <Td>Match Date</Td>
+              <Td>Half Time Score</Td>
+              <Td>Stadium Name</Td>
             </tr>
           </thead>
           <tbody>
-            {schedulesData?.schedules?.map((match) => (
+            {schedulesData?.schedules?.map((match, index) => (
               <tr key={match.sport_event.id}>
-                <Td>{`${match.sport_event.competitors[0].name} - ${match.sport_event.competitors[1].name}`}</Td>
-                <Td>
-                  {match.sport_event.competitors[0].qualifier === "home"
-                    ? `${match.sport_event_status.home_score} : ${match.sport_event_status.away_score}`
-                    : `${match.sport_event_status.away_score} : ${match.sport_event_status.home_score}`}
+                <Td
+                  bgColor={setTeamColor(
+                    match.sport_event.competitors[0].id,
+                    match.sport_event_status.winner_id
+                  )}
+                >
+                  {match.sport_event.competitors[0].name}
                 </Td>
+                <Td
+                  bgColor={setTeamColor(
+                    match.sport_event.competitors[1].id,
+                    match.sport_event_status.winner_id
+                  )}
+                >
+                  {match.sport_event.competitors[1].name}
+                </Td>
+                <Td>
+                  {match.sport_event_status.period_scores &&
+                    (match.sport_event.competitors[0].qualifier === "home"
+                      ? `${match.sport_event_status.home_score} : ${match.sport_event_status.away_score}`
+                      : `${match.sport_event_status.away_score} : ${match.sport_event_status.home_score}`)}
+                </Td>
+                <Td>{formatDate(match.sport_event.start_time)}</Td>
+                <Td>
+                  {match.sport_event_status.period_scores &&
+                    (match.sport_event.competitors[0].qualifier === "home"
+                      ? `${match.sport_event_status.period_scores[0].home_score} : ${match.sport_event_status.period_scores[0].away_score}`
+                      : `${match.sport_event_status.period_scores[0]?.away_score} : ${match.sport_event_status.period_scores[0].home_score}`)}
+                </Td>
+                <Td>{match.sport_event.venue.name}</Td>
               </tr>
             ))}
           </tbody>
