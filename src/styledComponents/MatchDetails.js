@@ -1,4 +1,11 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
+
+const slideUp = keyframes`
+100%{
+    opacity:1;
+    transform: translateY(0px);
+}
+`
 
 export const MainContainer = styled.div`
   background-image: url("https://images.unsplash.com/photo-1508098682722-e99c43a406b2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80");
@@ -21,6 +28,10 @@ background: linear-gradient(90deg, rgba(13,125,0,0.6) 0%, rgba(0,158,30,0.4) 100
   align-items: center;
   width: 30vw;
   padding: 10px;
+  opacity:0;
+  transform: translateY(50px);
+    animation: ${slideUp} 1s 0.1s ease;
+    animation-fill-mode: forwards;
 `
 
 export const Ul = styled.ul`
@@ -36,4 +47,11 @@ display: flex;
   justify-content: flex-start;
   align-items: center;
   width: 20vw;
+  opacity:0;
+  transform: translateY(50px);
+    animation: ${slideUp} 1s 0.4s ease;
+    animation-fill-mode: forwards;
+    > p {
+        font-size: 2em;
+    }
   `

@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Table, Td } from "../styledComponents/Home";
+import { useNavigate } from "react-router-dom";
+
 import { baseURI, ApiKeyURI } from "../services/settingApi";
+import { formatDate } from "../services/formats";
 // import { schedulesRes } from "../apiResponsesMocks/schedules";
 // import { seasonsRes } from "../apiResponsesMocks/seasons";
-import { useNavigate } from "react-router-dom";
-import { formatDate } from "../services/formats";
+
+import {
+  Table,
+  Td,
+  Select,
+  ShowBestButton,
+  ShowBestModal,
+} from "../styledComponents/Home";
 
 const HomePage = () => {
   const [isLoading, setLoading] = useState(true);
@@ -12,6 +20,9 @@ const HomePage = () => {
   const [seasons, setSeasons] = useState([]);
   const [seasonFilter, setSeasonFilter] = useState("");
   const [schedulesFiltered, setSchedulesFiltered] = useState([]);
+  const [bestPlayers, setBestPlayers] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  var counter = 0;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,6 +34,7 @@ const HomePage = () => {
 
   useEffect(() => {
     setFilters();
+    counter = 0;
   }, [seasonFilter]);
 
   const fetchData = async () => {
@@ -33,6 +45,7 @@ const HomePage = () => {
     )
       .then((res) => res.json())
       .catch((error) => console.log(error));
+
     const seasonsRes = await fetch(
       baseURI +
         "soccer/trial/v4/en/competitions/sr:competition:202/seasons.json" +
@@ -40,10 +53,23 @@ const HomePage = () => {
     )
       .then((res) => res.json())
       .catch((error) => console.log(error));
+
     console.log(schedulesRes.schedules);
     setSchedulesData(schedulesRes.schedules);
     console.log(seasonsRes.seasons);
     setSeasons(seasonsRes.seasons);
+  };
+
+  const fetchBestPlayers = async () => {
+    const bestPlayersRes = await fetch(
+      baseURI +
+        `soccer/trial/v4/en/seasons/${seasonFilter}/leaders.json` +
+        ApiKeyURI
+    )
+      .then((res) => res.json())
+      .catch((error) => console.log(error));
+    console.log(bestPlayersRes);
+    setBestPlayers(bestPlayersRes.lists);
   };
 
   const goToMatch = (matchId) => {
@@ -80,7 +106,7 @@ const HomePage = () => {
         <h1>Loading...</h1>
       ) : (
         <>
-          <select
+          <Select
             name="seasons"
             id=""
             onChange={(e) => {
@@ -94,7 +120,39 @@ const HomePage = () => {
                 {season.name}
               </option>
             ))}
-          </select>
+          </Select>
+
+          <ShowBestButton
+            show={seasonFilter ? true : false}
+            onClick={() => {
+              !showModal && fetchBestPlayers();
+              setShowModal(!showModal);
+            }}
+          >
+            Show Bests
+          </ShowBestButton>
+
+          <ShowBestModal showModal={showModal}>
+            <h1>Top 10 Players</h1>
+            <h2>Goals</h2>
+            <div>
+              {bestPlayers &&
+                bestPlayers
+                  ?.filter((best) => best.type === "goals")[0]
+                  ?.leaders.map((place) => {
+                    return place.players?.map((player) => {
+                      counter++;
+                      return counter <= 10 ? (
+                        <p key={player.id}>
+                          {place.rank}. {player.name} [
+                          {player.competitors[0].abbreviation}] -
+                          {player.competitors[0].datapoints[0]?.value}
+                        </p>
+                      ) : null;
+                    });
+                  })}
+            </div>
+          </ShowBestModal>
 
           <Table>
             <thead>

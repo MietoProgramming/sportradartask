@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { baseURI, ApiKeyURI } from "../services/settingApi";
 import { useParams } from "react-router-dom";
+
+import { baseURI, ApiKeyURI } from "../services/settingApi";
+import { formatDate } from "../services/formats";
+import { matchRes } from "../apiResponsesMocks/match";
+
 import {
   MainContainer,
   Card,
   Ul,
   StatsContainer,
 } from "../styledComponents/MatchDetails";
-// import { matchRes } from "../apiResponsesMocks/match";
-import { formatDate } from "../services/formats";
 
 const MatchDetails = () => {
   const [isLoading, setLoading] = useState(true);
@@ -22,11 +24,11 @@ const MatchDetails = () => {
   }, [id]);
 
   const fetchData = async () => {
-    const matchRes = await fetch(
-      baseURI + `soccer/trial/v4/en/sport_events/${id}/lineups.json` + ApiKeyURI
-    )
-      .then((res) => res.json())
-      .catch((error) => console.log(error));
+    // const matchRes = await fetch(
+    //   baseURI + `soccer/trial/v4/en/sport_events/${id}/lineups.json` + ApiKeyURI
+    // )
+    //   .then((res) => res.json())
+    //   .catch((error) => console.log(error));
     console.log(matchRes);
     setMatchData(matchRes);
   };
